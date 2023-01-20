@@ -165,7 +165,6 @@ const styles = StyleSheet.create({
   },
   ScrollView: {
     width: '100%',
-    marginTop: 20,
   },
   name: {
     marginTop: 60,
@@ -182,6 +181,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.25,
     shadowRadius: 5,
     elevation: 5,
+    marginBottom: 20
   },
   healthArmour: {
     alignSelf: 'center', 
