@@ -1,10 +1,25 @@
 import { useEffect, useState } from 'react';
-import { StyleSheet, Text, View, TouchableOpacity, TextInput, ScrollView } from 'react-native';
+import { StyleSheet, Text, View, TouchableOpacity, TextInput, ScrollView, Alert } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import colors from '../colors';
 
-const CharacterScreen = () => {
-    const [ name, setName ] = useState('');
+const CharacterScreen = ({ route, navigation }) => {
+
+  const [ name, setName ] = useState('');
+
+  useEffect(() => { 
+    const getCharacterData = async () => {
+      try {
+        const name = await AsyncStorage.getItem(NAME)
+        if (name != null) {
+          setName(name)
+        }
+      } catch (e) {
+        Alert.alert("Failed to get data from storage")
+      }
+    }
+    getCharacterData();
+  }, []);
 
     return (
       <View style={styles.container}>
