@@ -5,36 +5,111 @@ import colors from '../colors';
 
 const CharacterScreen = ({ route, navigation }) => {
 
-  const [ name, setName ] = useState('');
+  const [ name, setName ] = useState('Character');
+  const [ health, setHealth ] = useState('00');
+  const [ armour, setArmour ] = useState('00');
 
   useEffect(() => { 
-    const getCharacterData = async () => {
+    const getHealthData = async () => {
       try {
-        const name = await AsyncStorage.getItem(NAME)
-        if (name != null) {
-          setName(name)
+
+        const healthData = await AsyncStorage.getItem('Health')
+        if (healthData != null) {
+          setHealth(healthData)
         }
+        
+        const nameData = await AsyncStorage.getItem('Name')
+        if (nameData != null) {
+          setName(nameData)
+        }
+
+        const armourData = await AsyncStorage.getItem('Armour')
+        if (armourData != null) {
+          setArmour(armourData)
+        }
+
       } catch (e) {
-        Alert.alert("Failed to get data from storage")
+        Alert.alert("Failed to get health data from storage")
       }
     }
-    getCharacterData();
+    getHealthData();
   }, []);
+
+  const setNameStorage = async () => {
+    try {
+      await AsyncStorage.setItem('Name', name)
+    } catch (e) {
+      console.log('Error:',e)
+    }
+  }
+
+  const setHealthStorage = async () => {
+    try {
+      await AsyncStorage.setItem('Health', health)
+    } catch (e) {
+      console.log('Error:',e)
+    }
+  }
+
+  const setArmourStorage = async () => {
+    try {
+      await AsyncStorage.setItem('Armour', armour)
+      console.log(armour)
+    } catch (e) {
+      console.log('Error:',e)
+    }
+  }
 
     return (
       <View style={styles.container}>
         <View style={styles.name}>
-          <Text style={styles.textColor}>Character</Text>
+          <TextInput
+            color={colors.Brown}
+            fontSize={50}
+            cursorColor={colors.Brown}
+            autoCapitalize="none"
+            keyboardType="default"
+            keyboardAppearance="dark"
+            value={name}
+            onChangeText={(text) => setName(text)}
+            width={'100%'}
+            onEndEditing={() => {setNameStorage()}}
+            textAlign={'center'}
+          />
         </View>
         <ScrollView style={styles.ScrollView}>
           <View style={styles.healthArmour}>
             <View style={styles.health}>
               <Text style={styles.hpText}>HP</Text>
-              <Text style={styles.healthText}>80</Text>
+              <TextInput
+                color={colors.Brown}
+                fontSize={80}
+                cursorColor={colors.Brown}
+                autoCapitalize="none"
+                keyboardType="phone-pad"
+                keyboardAppearance="dark"
+                value={health}
+                onChangeText={(text) => setHealth(text)}
+                width={150}
+                onEndEditing={() => {setHealthStorage()}}
+                textAlign={'center'}
+              />
             </View>
             <View style={styles.armour}>
-            <Text style={styles.hpText}>AR</Text>
-              <Text style={styles.armourText}>16</Text>
+              <Text style={styles.hpText}>AR</Text>
+              <TextInput
+                  color={colors.Brown}
+                  fontSize={80}
+                  cursorColor={colors.Brown}
+                  autoCapitalize="none"
+                  keyboardType="phone-pad"
+                  keyboardAppearance="dark"
+                  value={armour}
+                  onChangeText={(text) => setArmour(text)}
+                  width={150}
+                  onEndEditing={() => {setArmourStorage()}}
+                  textAlign={'center'}
+                />
             </View>
           </View>
           <View style={styles.traits}>
@@ -75,9 +150,6 @@ const CharacterScreen = ({ route, navigation }) => {
             </View>
           </View>
         </ScrollView>
-        <TouchableOpacity style={styles.button}>
-          <Text style={styles.textColor}>Edit Character</Text>
-        </TouchableOpacity>
       </View>
     );
 }
@@ -89,10 +161,10 @@ const styles = StyleSheet.create({
     width: '100%',
     height: '100%',
     alignItems: 'center',
+    backgroundColor: colors.Blue
   },
   ScrollView: {
     width: '100%',
-    marginBottom: 120,
     marginTop: 20,
   },
   name: {
@@ -167,6 +239,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     height: 'auto',
     minHeight: 100,
+    marginBottom: 20
   },
   button: {
     position: 'absolute',
