@@ -1,12 +1,12 @@
 import { useEffect, useState } from 'react';
 import { StyleSheet, View,  } from 'react-native';
 import colors from './colors';
-import CharacterStack from './Navigation/CharacterStack';
+import CharacterScreen from './Screens/CharacterScreen';
 
 export default function App() {
 
   return (
-    <CharacterStack />
+    <CharacterScreen />
   );
 }
 

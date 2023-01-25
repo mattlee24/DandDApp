@@ -1,38 +1,55 @@
 import { useEffect, useState } from 'react';
-import { StyleSheet, Text, View, TouchableOpacity, TextInput, ScrollView, Alert } from 'react-native';
+import { StyleSheet, Text, View, TextInput, ScrollView, Alert, Touchable, TouchableOpacity } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import colors from '../colors';
 
-const CharacterScreen = ({ route, navigation }) => {
+const CharacterScreen = () => {
 
   const [ name, setName ] = useState('Character');
   const [ health, setHealth ] = useState('00');
   const [ armour, setArmour ] = useState('00');
+  const [ positiveTrait, setPositiveTrait ] = useState('Positive');
+  const [ negativeTrait, setNegativeTrait ] = useState('Negative');
+  const [ skillsData, setSkillsData ] = useState({
+    "1" :{
+      "name": "Strength",
+      "number": "+2",
+      "id": "1"
+    },
+  })
 
   useEffect(() => { 
-    const getHealthData = async () => {
+
+    const getCharacterData = async () => {
+      let values;
       try {
+        values = await AsyncStorage.multiGet(['Name', 'Health', 'Armour', 'Positive', 'Negative']) 
 
-        const healthData = await AsyncStorage.getItem('Health')
-        if (healthData != null) {
-          setHealth(healthData)
-        }
-        
-        const nameData = await AsyncStorage.getItem('Name')
-        if (nameData != null) {
-          setName(nameData)
+        if (values[0][1] != null) {
+          setName(values[0][1])
         }
 
-        const armourData = await AsyncStorage.getItem('Armour')
-        if (armourData != null) {
-          setArmour(armourData)
+        if (values[1][1] != null ) {
+          setHealth(values[1][1])
+        }
+
+        if (values[2][1] != null ) {
+          setArmour(values[2][1])
+        }
+
+        if (values[3][1] != null ) {
+          setPositiveTrait(values[3][1])
+        }
+
+        if (values[4][1] != null ) {
+          setNegativeTrait(values[4][1])
         }
 
       } catch (e) {
-        Alert.alert("Failed to get health data from storage")
+        Alert.alert("Failed to get character data from storage")
       }
     }
-    getHealthData();
+    getCharacterData();
   }, []);
 
   const setNameStorage = async () => {
@@ -54,10 +71,42 @@ const CharacterScreen = ({ route, navigation }) => {
   const setArmourStorage = async () => {
     try {
       await AsyncStorage.setItem('Armour', armour)
-      console.log(armour)
     } catch (e) {
       console.log('Error:',e)
     }
+  }
+
+  const setPositiveStorage = async () => {
+    try {
+      await AsyncStorage.setItem('Positive', positiveTrait)
+    } catch (e) {
+      console.log('Error:',e)
+    }
+  }
+
+  const setNegativeStorage = async () => {
+    try {
+      await AsyncStorage.setItem('Negative', negativeTrait)
+    } catch (e) {
+      console.log('Error:',e)
+    }
+  }
+
+  const editSkillData = (id, text) => {
+    skillsData[id].name = text
+    console.log(skillsData)
+  }
+
+  const addSkillsData = () => {
+    const skillsDataEdited = skillsData;
+    id = Object.keys(skillsDataEdited).length;
+    id = id + 1;
+    skillsDataEdited[id] =  {
+        id: id,
+        name: "test",
+        number: "+1",
+    }
+    setSkillsData(skillsDataEdited);
   }
 
     return (
@@ -117,15 +166,73 @@ const CharacterScreen = ({ route, navigation }) => {
               <Text style={styles.textColor}>Traits</Text>
             </View>
             <View style={styles.traitsContent}>
-              <Text style={styles.traitsContenttextColor}>Positive: </Text>
-              <Text style={styles.traitsContenttextColor}>Negative: </Text>
+              <View style={styles.positiveAndNegative}>
+                <Text style={styles.traitsContenttextColor}>Positive: </Text>
+                <TextInput
+                  style={styles.traitsStyle}
+                  color={colors.Brown}
+                  fontSize={25}
+                  cursorColor={colors.Brown}
+                  autoCapitalize="none"
+                  keyboardType="ascii-capable"
+                  keyboardAppearance="dark"
+                  value={positiveTrait}
+                  onChangeText={(text) => setPositiveTrait(text)}
+                  onEndEditing={() => {setPositiveStorage()}}
+                  textAlign={'left'}
+                />
+              </View>
+              <View style={styles.positiveAndNegative}>
+                <Text style={styles.traitsContenttextColor}>Negative: </Text>
+                <TextInput
+                  style={styles.traitsStyle}
+                  color={colors.Brown}
+                  fontSize={25}
+                  cursorColor={colors.Brown}
+                  autoCapitalize="none"
+                  keyboardType="ascii-capable"
+                  keyboardAppearance="dark"
+                  value={negativeTrait}
+                  onChangeText={(text) => setNegativeTrait(text)}
+                  onEndEditing={() => {setNegativeStorage()}}
+                  textAlign={'left'}
+                />
+              </View>
             </View>
           </View>
           <View style={styles.skillBonus}>
             <View style={styles.traitsTitle}>
               <Text style={styles.textColor}>Skill Bonus</Text>
+              <TouchableOpacity style={styles.addSkillButton} onPress={() => {addSkillsData()}}>
+                <Text style={styles.addButton}>+</Text>
+              </TouchableOpacity>
             </View>
-            <View style={styles.traitsContent}>
+            <View style={styles.skillContent}>
+              {Object.values(skillsData).map(index => {
+                return (
+                <View
+                  key={index.id}
+                  style={styles.singleSkillView}
+                >
+                  <View style={styles.skillAmount}>
+                    <Text style={styles.skillAmountText}>{index.number}</Text>
+                  </View>
+                  <TextInput
+                    style={styles.skillName}
+                    color={colors.Brown}
+                    fontSize={40}
+                    cursorColor={colors.Brown}
+                    autoCapitalize="none"
+                    keyboardType="ascii-capable"
+                    keyboardAppearance="dark"
+                    value={index.name}
+                    onChangeText={(text) => editSkillData(index.id, text)}
+                    // onEndEditing={() => {setNegativeStorage()}}
+                    textAlign={'left'}
+                  />
+                </View>
+                )
+              })}
             </View>
           </View>
           <View style={styles.skillBonus}>
@@ -216,9 +323,22 @@ const styles = StyleSheet.create({
     height: 'auto',
     paddingBottom: 20,
   },
+  traitsStyle: {
+    borderWidth: 3,
+    borderRadius: 25,
+    borderColor: colors.Navy,
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    marginTop: 20,
+    marginLeft: 10,
+    maxWidth: '54%'
+  },
+  positiveAndNegative: {
+    flexDirection: 'row',
+  },  
   traitsContent: {
     width: '100%',
-    marginLeft: 30,
+    paddingLeft: 10,
   },
   skillBonus: {
     marginTop: 20,
@@ -230,6 +350,47 @@ const styles = StyleSheet.create({
     height: 'auto',
     minHeight: 100
   },
+  skillContent: {
+    width: '100%',
+    paddingLeft: 10,
+  },
+  addSkillButton: {
+    position: 'absolute',
+    right: 0,
+    top: 0,
+    marginRight: 10,
+    marginTop: 5,
+    backgroundColor: colors.Brown,
+    paddingHorizontal: 10,
+    borderRadius: 15,
+  },
+  addButton: {
+    fontSize: 40
+  },
+  singleSkillView: {
+    width: '100%',
+    flexDirection: 'row',
+    height: 'auto',
+    marginVertical: 20,
+    justifyContent: 'center'
+  },
+  skillAmount: {
+    borderWidth: 3,
+    borderRadius: 15,
+    borderColor: colors.Navy,
+    padding: 10
+  },
+  skillName: {
+    borderWidth: 3,
+    borderRadius: 15,
+    marginLeft: 20,
+    borderColor: colors.Navy,
+    padding: 10
+  },
+  skillAmountText: {
+    fontSize: 40,
+    color: colors.Brown
+  },
   inventory: {
     marginTop: 20,
     alignItems: 'center',
@@ -239,7 +400,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     height: 'auto',
     minHeight: 100,
-    marginBottom: 20
+    marginBottom: 600
   },
   button: {
     position: 'absolute',
@@ -261,7 +422,7 @@ const styles = StyleSheet.create({
   },
   textColor: {
     color: colors.Brown,
-    fontSize: 50
+    fontSize: 50,
   },
   healthText: {
     color: colors.Brown,
@@ -290,6 +451,7 @@ const styles = StyleSheet.create({
   traitsContenttextColor: {
     color: colors.Navy,
     fontSize: 40,
-    marginTop: 20
+    marginTop: 20,
+    width: '40%',
   }
 })
