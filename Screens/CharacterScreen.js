@@ -11,14 +11,15 @@ const CharacterScreen = () => {
   const [ armour, setArmour ] = useState('00');
   const [ positiveTrait, setPositiveTrait ] = useState('Positive');
   const [ negativeTrait, setNegativeTrait ] = useState('Negative');
-  const [ skillsData, setSkillsData ] = useState({})
+  const [ skillsData, setSkillsData ] = useState({});
+  const [ attacksData, setAttacksData ] = useState({});
 
   useEffect(() => { 
 
     const getCharacterData = async () => {
       let values;
       try {
-        values = await AsyncStorage.multiGet(['Name', 'Health', 'Armour', 'Positive', 'Negative', 'Skills']) 
+        values = await AsyncStorage.multiGet(['Name', 'Health', 'Armour', 'Positive', 'Negative', 'Skills', 'Attacks']) 
 
         if (values[0][1] != null) {
           setName(values[0][1])
@@ -42,6 +43,10 @@ const CharacterScreen = () => {
 
         if (values[5][1] != null ) {
           setSkillsData(JSON.parse(values[5][1]))
+        }
+
+        if (values[6][1] != null ) {
+          setAttacksData(JSON.parse(values[6][1]))
         }
 
       } catch (e) {
@@ -102,7 +107,7 @@ const CharacterScreen = () => {
   const addSkillsData = () => {
     let id = Object.keys(skillsData).length;
     id = id + 1;
-    setSkillsData({ ...skillsData,
+    setSkillsData({...skillsData,
       [id] :{
         "name": "Edit",
         "number": "+0",
@@ -116,6 +121,32 @@ const CharacterScreen = () => {
     delete editData[id]
     setSkillsData({...editData})
     await AsyncStorage.setItem('Skills', JSON.stringify(skillsData))
+  }
+
+  const addAttacksData = () => {
+    let id = Object.keys(attacksData).length;
+    id = id + 1;
+    setAttacksData({...attacksData,
+      [id] :{
+        "attack": "Edit",
+        "id": id
+      }
+    })
+  }
+
+  const updateAttacksDataStorage = async () => {
+    try {
+      await AsyncStorage.setItem('Attacks', JSON.stringify(attacksData))
+    } catch (e) {
+      console.log('Error:',e)
+    }
+  }
+
+  const deleteItemFromAttacksStorage = async (id) => {
+    let editData = attacksData;
+    delete editData[id]
+    setAttacksData({...editData})
+    await AsyncStorage.setItem('Attacks', JSON.stringify(attacksData))
   }
 
     return (
@@ -213,7 +244,7 @@ const CharacterScreen = () => {
             <View style={styles.skillsTitle}>
               <Text style={styles.textColor}>Skill Bonus</Text>
               <TouchableOpacity style={styles.addSkillButton} onPress={() => {addSkillsData()}}>
-                <Text style={styles.addButton}>+</Text>
+                <Ionicons style={styles.addButton} name="add-circle"></Ionicons>
               </TouchableOpacity>
             </View>
             <View style={styles.skillContent}>
@@ -232,7 +263,7 @@ const CharacterScreen = () => {
                       keyboardType="phone-pad"
                       keyboardAppearance="dark"
                       value={skillsData[index.id].number}
-                      onChangeText={(text) => setSkillsData({ ...skillsData,
+                      onChangeText={(text) => setSkillsData({...skillsData,
                         [index.id] :{
                           "name": index.name,
                           "number": text,
@@ -252,7 +283,7 @@ const CharacterScreen = () => {
                       keyboardType="ascii-capable"
                       keyboardAppearance="dark"
                       value={skillsData[index.id].name}
-                        onChangeText={(text) => setSkillsData({ ...skillsData,
+                        onChangeText={(text) => setSkillsData({...skillsData,
                           [index.id] :{
                             "name": text,
                             "number": index.number,
@@ -272,10 +303,41 @@ const CharacterScreen = () => {
             </View>
           </View>
           <View style={styles.skillBonus}>
-            <View style={styles.traitsTitle}>
+          <View style={styles.skillsTitle}>
               <Text style={styles.textColor}>Attacks</Text>
+              <TouchableOpacity style={styles.addSkillButton} onPress={() => {addAttacksData()}}>
+                <Ionicons style={styles.addButton} name="add-circle"></Ionicons>
+              </TouchableOpacity>
             </View>
-            <View style={styles.traitsContent}>
+            <View style={styles.attacksContent}>
+                {Object.values(attacksData).map(index => {
+                  return (
+                    <View key={index.id} style={styles.attackPoint}>
+                      <TouchableOpacity onPress={() => deleteItemFromAttacksStorage(index.id)}>
+                        <Ionicons style={styles.attackPointText} name="remove-circle"></Ionicons>
+                      </TouchableOpacity>
+                      <TextInput
+                        style={styles.attackPointTextInput}
+                        color={colors.Brown}
+                        fontSize={25}
+                        cursorColor={colors.Brown}
+                        autoCapitalize="none"
+                        keyboardType="ascii-capable"
+                        keyboardAppearance="dark"
+                        value={attacksData[index.id].attack}
+                        width={'90%'}
+                        multiline={true}
+                        onChangeText={(text) => setAttacksData({...attacksData,
+                          [index.id] :{
+                            "attack": text,
+                            "id": index.id
+                          }
+                        })}
+                        onEndEditing={() => updateAttacksDataStorage()}
+                      />
+                    </View>
+                  )
+                })}
             </View>
           </View>
           <View style={styles.skillBonus}>
@@ -358,16 +420,16 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     height: 'auto',
     paddingBottom: 20,
+    borderColor: colors.Navy
   },
   traitsStyle: {
-    borderWidth: 3,
-    borderRadius: 25,
-    borderColor: colors.Navy,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.Navy,
     paddingHorizontal: 10,
     paddingVertical: 6,
     marginTop: 20,
     marginLeft: 10,
-    maxWidth: '54%'
+    width: '50%'
   },
   positiveAndNegative: {
     flexDirection: 'row',
@@ -385,6 +447,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     height: 'auto',
     minHeight: 100,
+    borderColor: colors.Navy
   },
   skillsTitle: {
     backgroundColor: colors.Navy,
@@ -404,15 +467,14 @@ const styles = StyleSheet.create({
     position: 'absolute',
     right: 0,
     top: 0,
-    marginRight: 15,
+    marginRight: 5,
     marginTop: 16,
-    backgroundColor: colors.Brown,
     paddingHorizontal: 10,
     borderRadius: 15,
   },
   addButton: {
     fontSize: 40,
-    color: colors.Blue,
+    color: colors.Brown,
   },
   singleSkillView: {
     width: '100%',
@@ -452,6 +514,27 @@ const styles = StyleSheet.create({
     fontSize: 40,
     color: colors.Red
   },
+  attacksContent: {
+    width: '100%',
+    paddingBottom: 30,
+    paddingRight: 20
+  },
+  attackPoint: {
+    flexDirection: 'row',
+    marginTop: 20,
+    alignItems: 'center',
+    marginLeft: 20,
+    maxWidth: '90%',
+  },
+  attackPointText: {
+    color: colors.Brown,
+    fontSize: 25,
+    marginRight: 20,
+  },  
+  attackPointTextInput: {
+    alignSelf: 'center',
+    marginTop: -5
+  },
   inventory: {
     marginTop: 20,
     alignItems: 'center',
@@ -461,7 +544,8 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     height: 'auto',
     minHeight: 100,
-    marginBottom: 600
+    marginBottom: 600,
+    borderColor: colors.Navy
   },
   button: {
     position: 'absolute',
