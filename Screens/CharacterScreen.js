@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { StyleSheet, Text, View, TextInput, ScrollView, Alert, Touchable, TouchableOpacity } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import colors from '../colors';
+import { Ionicons } from '@expo/vector-icons';
 
 const CharacterScreen = () => {
 
@@ -10,20 +11,14 @@ const CharacterScreen = () => {
   const [ armour, setArmour ] = useState('00');
   const [ positiveTrait, setPositiveTrait ] = useState('Positive');
   const [ negativeTrait, setNegativeTrait ] = useState('Negative');
-  const [ skillsData, setSkillsData ] = useState({
-    "1" :{
-      "name": "Strength",
-      "number": "+2",
-      "id": "1"
-    },
-  })
+  const [ skillsData, setSkillsData ] = useState({})
 
   useEffect(() => { 
 
     const getCharacterData = async () => {
       let values;
       try {
-        values = await AsyncStorage.multiGet(['Name', 'Health', 'Armour', 'Positive', 'Negative']) 
+        values = await AsyncStorage.multiGet(['Name', 'Health', 'Armour', 'Positive', 'Negative', 'Skills']) 
 
         if (values[0][1] != null) {
           setName(values[0][1])
@@ -43,6 +38,10 @@ const CharacterScreen = () => {
 
         if (values[4][1] != null ) {
           setNegativeTrait(values[4][1])
+        }
+
+        if (values[5][1] != null ) {
+          setSkillsData(JSON.parse(values[5][1]))
         }
 
       } catch (e) {
@@ -92,21 +91,31 @@ const CharacterScreen = () => {
     }
   }
 
-  const editSkillData = (id, text) => {
-    skillsData[id].name = text
-    console.log(skillsData)
+  const updateSkillDataStorage = async () => {
+    try {
+      await AsyncStorage.setItem('Skills', JSON.stringify(skillsData))
+    } catch (e) {
+      console.log('Error:',e)
+    }
   }
 
   const addSkillsData = () => {
-    const skillsDataEdited = skillsData;
-    id = Object.keys(skillsDataEdited).length;
+    let id = Object.keys(skillsData).length;
     id = id + 1;
-    skillsDataEdited[id] =  {
-        id: id,
-        name: "test",
-        number: "+1",
-    }
-    setSkillsData(skillsDataEdited);
+    setSkillsData({ ...skillsData,
+      [id] :{
+        "name": "Edit",
+        "number": "+0",
+        "id": id
+      }
+    })
+  }
+
+  const deleteItemFromSkillStorage = async (id) => {
+    let editData = skillsData;
+    delete editData[id]
+    setSkillsData({...editData})
+    await AsyncStorage.setItem('Skills', JSON.stringify(skillsData))
   }
 
     return (
@@ -201,7 +210,7 @@ const CharacterScreen = () => {
             </View>
           </View>
           <View style={styles.skillBonus}>
-            <View style={styles.traitsTitle}>
+            <View style={styles.skillsTitle}>
               <Text style={styles.textColor}>Skill Bonus</Text>
               <TouchableOpacity style={styles.addSkillButton} onPress={() => {addSkillsData()}}>
                 <Text style={styles.addButton}>+</Text>
@@ -215,21 +224,48 @@ const CharacterScreen = () => {
                   style={styles.singleSkillView}
                 >
                   <View style={styles.skillAmount}>
-                    <Text style={styles.skillAmountText}>{index.number}</Text>
+                    <TextInput
+                      color={colors.Brown}
+                      fontSize={40}
+                      cursorColor={colors.Brown}
+                      autoCapitalize="none"
+                      keyboardType="phone-pad"
+                      keyboardAppearance="dark"
+                      value={skillsData[index.id].number}
+                      onChangeText={(text) => setSkillsData({ ...skillsData,
+                        [index.id] :{
+                          "name": index.name,
+                          "number": text,
+                          "id": index.id
+                        }
+                      })}
+                      onEndEditing={() => updateSkillDataStorage()}
+                      textAlign={'left'}
+                    />
                   </View>
-                  <TextInput
-                    style={styles.skillName}
-                    color={colors.Brown}
-                    fontSize={40}
-                    cursorColor={colors.Brown}
-                    autoCapitalize="none"
-                    keyboardType="ascii-capable"
-                    keyboardAppearance="dark"
-                    value={index.name}
-                    onChangeText={(text) => editSkillData(index.id, text)}
-                    // onEndEditing={() => {setNegativeStorage()}}
-                    textAlign={'left'}
-                  />
+                  <View style={styles.skillNameView}>
+                    <TextInput
+                      color={colors.Brown}
+                      fontSize={30}
+                      cursorColor={colors.Brown}
+                      autoCapitalize="none"
+                      keyboardType="ascii-capable"
+                      keyboardAppearance="dark"
+                      value={skillsData[index.id].name}
+                        onChangeText={(text) => setSkillsData({ ...skillsData,
+                          [index.id] :{
+                            "name": text,
+                            "number": index.number,
+                            "id": index.id
+                          }
+                        })}
+                      onEndEditing={() => updateSkillDataStorage()}
+                      textAlign={'left'}
+                    />
+                  </View>
+                  <TouchableOpacity style={styles.skillDeleteBtnView} onPress={() => deleteItemFromSkillStorage(index.id)}>
+                    <Ionicons style={styles.skillDeleteBtn} name="trash-bin"></Ionicons>
+                  </TouchableOpacity>
                 </View>
                 )
               })}
@@ -348,48 +384,73 @@ const styles = StyleSheet.create({
     width: '90%',
     borderWidth: 1,
     height: 'auto',
-    minHeight: 100
+    minHeight: 100,
+  },
+  skillsTitle: {
+    backgroundColor: colors.Navy,
+    color: colors.Brown,
+    width: '100%',
+    borderTopRightRadius: 25,
+    borderTopLeftRadius: 25,
+    alignItems: 'center',
+    marginBottom: 20,
+    paddingVertical: 10
   },
   skillContent: {
     width: '100%',
-    paddingLeft: 10,
+    paddingHorizontal: 20
   },
   addSkillButton: {
     position: 'absolute',
     right: 0,
     top: 0,
-    marginRight: 10,
-    marginTop: 5,
+    marginRight: 15,
+    marginTop: 16,
     backgroundColor: colors.Brown,
     paddingHorizontal: 10,
     borderRadius: 15,
   },
   addButton: {
-    fontSize: 40
+    fontSize: 40,
+    color: colors.Blue,
   },
   singleSkillView: {
     width: '100%',
     flexDirection: 'row',
     height: 'auto',
-    marginVertical: 20,
-    justifyContent: 'center'
+    marginBottom: 20,
+    justifyContent: 'center',
   },
   skillAmount: {
     borderWidth: 3,
     borderRadius: 15,
     borderColor: colors.Navy,
-    padding: 10
+    padding: 5,
+    width: '25%',
+    justifyContent: 'center',
+    alignItems: 'center'
   },
-  skillName: {
+  skillNameView: {
     borderWidth: 3,
     borderRadius: 15,
-    marginLeft: 20,
     borderColor: colors.Navy,
-    padding: 10
+    padding: 5,
+    width: '50%',
+    marginLeft: 10,
+    justifyContent: 'center',
+    alignItems: 'center'
   },
-  skillAmountText: {
+  skillDeleteBtnView: {
+    justifyContent: 'center',
+    marginLeft: 10,
+    borderWidth: 3,
+    padding: 10,
+    borderRadius: 25,
+    borderColor: colors.Navy
+  },  
+  skillDeleteBtn: {
     fontSize: 40,
-    color: colors.Brown
+    color: colors.Red
   },
   inventory: {
     marginTop: 20,
