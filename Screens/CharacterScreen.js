@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { StyleSheet, Text, View, TextInput, ScrollView, Alert, Touchable, TouchableOpacity, Platform, ImageBackground, Image } from 'react-native';
+import { StyleSheet, Text, View, TextInput, ScrollView, Alert, Touchable, TouchableOpacity, Platform, ImageBackground, Image, FlatList } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import colors from '../colors';
 import { Ionicons } from '@expo/vector-icons';
@@ -233,12 +233,9 @@ const CharacterScreen = () => {
       } catch (e) {
         console.log('Error:',e)
       }
-    } else {
-      Alert.alert("Image Error, image selection cancelled!")
-    }
+    } 
   }
 
-  if ( characterImage != '' ) {
     return (
       <View style={styles.container}>
         <View style={styles.name}>
@@ -352,7 +349,7 @@ const CharacterScreen = () => {
                       autoCapitalize="none"
                       keyboardType="phone-pad"
                       keyboardAppearance="dark"
-                      value={skillsData[index.id].number}
+                      value={index.number}
                       onChangeText={(text) => setSkillsData({...skillsData,
                         [index.id] :{
                           "name": index.name,
@@ -372,7 +369,7 @@ const CharacterScreen = () => {
                       autoCapitalize="none"
                       keyboardType="ascii-capable"
                       keyboardAppearance="dark"
-                      value={skillsData[index.id].name}
+                      value={index.name}
                         onChangeText={(text) => setSkillsData({...skillsData,
                           [index.id] :{
                             "name": text,
@@ -414,7 +411,7 @@ const CharacterScreen = () => {
                         autoCapitalize="none"
                         keyboardType="ascii-capable"
                         keyboardAppearance="dark"
-                        value={attacksData[index.id].attack}
+                        value={index.attack}
                         width={'90%'}
                         multiline={true}
                         onChangeText={(text) => setAttacksData({...attacksData,
@@ -452,7 +449,7 @@ const CharacterScreen = () => {
                         autoCapitalize="none"
                         keyboardType="ascii-capable"
                         keyboardAppearance="dark"
-                        value={specialsData[index.id].special}
+                        value={index.special}
                         width={'90%'}
                         multiline={true}
                         onChangeText={(text) => setSpecialsData({...specialsData,
@@ -476,34 +473,38 @@ const CharacterScreen = () => {
               </TouchableOpacity>
             </View>
             <View style={styles.attacksContent}>
-                {Object.values(inventoryData).map(index => {
-                  return (
-                    <View key={index.id} style={styles.attackPoint}>
-                      <TouchableOpacity onPress={() => deleteItemFromInventoryStorage(index.id)}>
-                        <Ionicons style={styles.attackPointText} name="remove-circle"></Ionicons>
-                      </TouchableOpacity>
-                      <TextInput
-                        style={styles.attackPointTextInput}
-                        color={colors.Brown}
-                        fontSize={25}
-                        cursorColor={colors.Brown}
-                        autoCapitalize="none"
-                        keyboardType="ascii-capable"
-                        keyboardAppearance="dark"
-                        value={inventoryData[index.id].item}
-                        width={'90%'}
-                        multiline={true}
-                        onChangeText={(text) => setInventoryData({...inventoryData,
-                          [index.id] :{
-                            "item": text,
-                            "id": index.id
-                          }
-                        })}
-                        onEndEditing={() => updateInverntoryDataStorage()}
-                      /> 
-                    </View>
-                  )
-                })}
+              <FlatList
+                style={styles.flatlist} 
+                data={Object.values(inventoryData)}
+                showsVerticalScrollIndicator={false}
+                numColumns={2}
+                keyExtractor={(item) => item.id}
+                renderItem={({ item }) => (
+                  <View key={item.id} style={styles.inventoryView}>
+                    <TouchableOpacity onPress={() => deleteItemFromInventoryStorage(item.id)}>
+                      <Ionicons style={styles.inventoryRemove} name="remove-circle"></Ionicons>
+                    </TouchableOpacity>
+                    <TextInput
+                      style={styles.inventoryTextInput}
+                      color={colors.Brown}
+                      fontSize={20}
+                      cursorColor={colors.Brown}
+                      autoCapitalize="none"
+                      keyboardType="ascii-capable"
+                      keyboardAppearance="dark"
+                      value={item.item}
+                      multiline={true}
+                      onChangeText={(text) => setInventoryData({...inventoryData,
+                        [item.id] :{
+                          "item": text,
+                          "id": item.id
+                        }
+                      })}
+                      onEndEditing={() => updateInverntoryDataStorage()}
+                    /> 
+                  </View>
+                )}
+              />
             </View>
           </View>
           <TouchableOpacity style={styles.characterImageView} onPress={() => {pickImage()}}>
@@ -516,7 +517,6 @@ const CharacterScreen = () => {
         </View>
       </View>
     );
-  } 
 }
 
 export default CharacterScreen;
@@ -713,7 +713,22 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     height: 'auto',
     minHeight: 100,
-    borderColor: colors.Navy
+    borderColor: colors.Navy,
+  },
+  inventoryView: {
+    flexDirection: 'row',
+    marginTop: 20,
+    alignItems: 'center',
+    width: '40%',
+    marginLeft: 20,
+    padding: 5
+  },
+  inventoryRemove: {
+    color: colors.Brown,
+    fontSize: 25,
+    marginRight: 5,
+  },  
+  inventoryTextInput: {
   },
   button: {
     position: 'absolute',
