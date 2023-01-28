@@ -7,8 +7,6 @@ import * as ImagePicker from 'expo-image-picker';
 
 const CharacterScreen = () => {
 
-  const imageBackground = 'C:\Users\matth\Documents\ddApp\assets\d&dBackground.png';
-
   const [ name, setName ] = useState('Character');
   const [ health, setHealth ] = useState('00');
   const [ armour, setArmour ] = useState('00');
@@ -25,7 +23,7 @@ const CharacterScreen = () => {
     const getCharacterData = async () => {
       let values;
       try {
-        values = await AsyncStorage.multiGet(['Name', 'Health', 'Armour', 'Positive', 'Negative', 'Skills', 'Attacks', 'Specials', 'Inventory']) 
+        values = await AsyncStorage.multiGet(['Name', 'Health', 'Armour', 'Positive', 'Negative', 'Skills', 'Attacks', 'Specials', 'Inventory', 'Image']) 
 
         if (values[0][1] != null) {
           setName(values[0][1])
@@ -61,6 +59,10 @@ const CharacterScreen = () => {
 
         if (values[8][1] != null ) {
           setInventoryData(JSON.parse(values[8][1]))
+        }
+
+        if (values[9][1] != null ) {
+          setCharacterImage(values[9][1])
         }
 
       } catch (e) {
@@ -226,11 +228,17 @@ const CharacterScreen = () => {
 
     if (!result.canceled) {
       setCharacterImage(result.assets[0].uri)
+      try {
+        await AsyncStorage.setItem('Image', result.assets[0].uri)
+      } catch (e) {
+        console.log('Error:',e)
+      }
     } else {
       Alert.alert("Image Error, image selection cancelled!")
     }
   }
 
+  if ( characterImage != '' ) {
     return (
       <View style={styles.container}>
         <View style={styles.name}>
@@ -508,6 +516,7 @@ const CharacterScreen = () => {
         </View>
       </View>
     );
+  } 
 }
 
 export default CharacterScreen;
