@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react';
-import { StyleSheet, Text, View, TextInput, ScrollView, Alert, Touchable, TouchableOpacity, Platform, ImageBackground } from 'react-native';
+import { StyleSheet, Text, View, TextInput, ScrollView, Alert, Touchable, TouchableOpacity, Platform, ImageBackground, Image } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import colors from '../colors';
 import { Ionicons } from '@expo/vector-icons';
+import * as ImagePicker from 'expo-image-picker';
 
 const CharacterScreen = () => {
 
@@ -17,6 +18,7 @@ const CharacterScreen = () => {
   const [ attacksData, setAttacksData ] = useState({});
   const [ specialsData, setSpecialsData ] = useState({});
   const [ inventoryData, setInventoryData ] = useState({})
+  const [ characterImage, setCharacterImage ] = useState('')
 
   useEffect(() => { 
 
@@ -213,281 +215,302 @@ const CharacterScreen = () => {
     await AsyncStorage.setItem('Inventory', JSON.stringify(inventoryData))
   }
 
+  const pickImage = async () => {
+    let result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.All,
+      allowsEditing: true,
+      aspect: [4, 3],
+      quality: 1,
+      exif: true
+    });
+
+    if (!result.canceled) {
+      setCharacterImage(result.assets[0].uri)
+    } else {
+      Alert.alert("Image Error, image selection cancelled!")
+    }
+  }
+
     return (
       <View style={styles.container}>
-        <ImageBackground source={require(imageBackground)} resizeMode="cover" style={styles.image}>
-          <View style={styles.name}>
-            <TextInput
-              color={colors.Brown}
-              fontSize={50}
-              cursorColor={colors.Brown}
-              autoCapitalize="none"
-              keyboardType="default"
-              keyboardAppearance="dark"
-              value={name}
-              onChangeText={(text) => setName(text)}
-              width={'100%'}
-              onEndEditing={() => {setNameStorage()}}
-              textAlign={'center'}
-            />
-          </View>
-          <ScrollView style={styles.ScrollView}>
-            <View style={styles.healthArmour}>
-              <View style={styles.health}>
-                <Text style={styles.hpText}>HP</Text>
-                <TextInput
+        <View style={styles.name}>
+          <TextInput
+            color={colors.Brown}
+            fontSize={50}
+            cursorColor={colors.Brown}
+            autoCapitalize="none"
+            keyboardType="default"
+            keyboardAppearance="dark"
+            value={name}
+            onChangeText={(text) => setName(text)}
+            width={'100%'}
+            onEndEditing={() => {setNameStorage()}}
+            textAlign={'center'}
+          />
+        </View>
+        <ScrollView style={styles.ScrollView}>
+          <View style={styles.healthArmour}>
+            <View style={styles.health}>
+              <Text style={styles.hpText}>HP</Text>
+              <TextInput
+                color={colors.Brown}
+                fontSize={80}
+                cursorColor={colors.Brown}
+                autoCapitalize="none"
+                keyboardType="phone-pad"
+                keyboardAppearance="dark"
+                value={health}
+                onChangeText={(text) => setHealth(text)}
+                width={150}
+                onEndEditing={() => {setHealthStorage()}}
+                textAlign={'center'}
+              />
+            </View>
+            <View style={styles.armour}>
+              <Text style={styles.hpText}>AR</Text>
+              <TextInput
                   color={colors.Brown}
                   fontSize={80}
                   cursorColor={colors.Brown}
                   autoCapitalize="none"
                   keyboardType="phone-pad"
                   keyboardAppearance="dark"
-                  value={health}
-                  onChangeText={(text) => setHealth(text)}
+                  value={armour}
+                  onChangeText={(text) => setArmour(text)}
                   width={150}
-                  onEndEditing={() => {setHealthStorage()}}
+                  onEndEditing={() => {setArmourStorage()}}
                   textAlign={'center'}
                 />
-              </View>
-              <View style={styles.armour}>
-                <Text style={styles.hpText}>AR</Text>
+            </View>
+          </View>
+          <View style={styles.traits}>
+            <View style={styles.traitsTitle}>
+              <Text style={styles.textColor}>Traits</Text>
+            </View>
+            <View style={styles.traitsContent}>
+              <View style={styles.positiveAndNegative}>
+                <Text style={styles.traitsContenttextColor}>Positive: </Text>
                 <TextInput
-                    color={colors.Brown}
-                    fontSize={80}
-                    cursorColor={colors.Brown}
-                    autoCapitalize="none"
-                    keyboardType="phone-pad"
-                    keyboardAppearance="dark"
-                    value={armour}
-                    onChangeText={(text) => setArmour(text)}
-                    width={150}
-                    onEndEditing={() => {setArmourStorage()}}
-                    textAlign={'center'}
-                  />
+                  style={styles.traitsStyle}
+                  color={colors.Brown}
+                  fontSize={25}
+                  cursorColor={colors.Brown}
+                  autoCapitalize="none"
+                  keyboardType="ascii-capable"
+                  keyboardAppearance="dark"
+                  value={positiveTrait}
+                  onChangeText={(text) => setPositiveTrait(text)}
+                  onEndEditing={() => {setPositiveStorage()}}
+                  textAlign={'left'}
+                />
+              </View>
+              <View style={styles.positiveAndNegative}>
+                <Text style={styles.traitsContenttextColor}>Negative: </Text>
+                <TextInput
+                  style={styles.traitsStyle}
+                  color={colors.Brown}
+                  fontSize={25}
+                  cursorColor={colors.Brown}
+                  autoCapitalize="none"
+                  keyboardType="ascii-capable"
+                  keyboardAppearance="dark"
+                  value={negativeTrait}
+                  onChangeText={(text) => setNegativeTrait(text)}
+                  onEndEditing={() => {setNegativeStorage()}}
+                  textAlign={'left'}
+                />
               </View>
             </View>
-            <View style={styles.traits}>
-              <View style={styles.traitsTitle}>
-                <Text style={styles.textColor}>Traits</Text>
-              </View>
-              <View style={styles.traitsContent}>
-                <View style={styles.positiveAndNegative}>
-                  <Text style={styles.traitsContenttextColor}>Positive: </Text>
-                  <TextInput
-                    style={styles.traitsStyle}
-                    color={colors.Brown}
-                    fontSize={25}
-                    cursorColor={colors.Brown}
-                    autoCapitalize="none"
-                    keyboardType="ascii-capable"
-                    keyboardAppearance="dark"
-                    value={positiveTrait}
-                    onChangeText={(text) => setPositiveTrait(text)}
-                    onEndEditing={() => {setPositiveStorage()}}
-                    textAlign={'left'}
-                  />
-                </View>
-                <View style={styles.positiveAndNegative}>
-                  <Text style={styles.traitsContenttextColor}>Negative: </Text>
-                  <TextInput
-                    style={styles.traitsStyle}
-                    color={colors.Brown}
-                    fontSize={25}
-                    cursorColor={colors.Brown}
-                    autoCapitalize="none"
-                    keyboardType="ascii-capable"
-                    keyboardAppearance="dark"
-                    value={negativeTrait}
-                    onChangeText={(text) => setNegativeTrait(text)}
-                    onEndEditing={() => {setNegativeStorage()}}
-                    textAlign={'left'}
-                  />
-                </View>
-              </View>
+          </View>
+          <View style={styles.skillBonus}>
+            <View style={styles.skillsTitle}>
+              <Text style={styles.textColor}>Skill Bonus</Text>
+              <TouchableOpacity style={styles.addSkillButton} onPress={() => {addSkillsData()}}>
+                <Ionicons style={styles.addButton} name="add-circle"></Ionicons>
+              </TouchableOpacity>
             </View>
-            <View style={styles.skillBonus}>
-              <View style={styles.skillsTitle}>
-                <Text style={styles.textColor}>Skill Bonus</Text>
-                <TouchableOpacity style={styles.addSkillButton} onPress={() => {addSkillsData()}}>
-                  <Ionicons style={styles.addButton} name="add-circle"></Ionicons>
-                </TouchableOpacity>
-              </View>
-              <View style={styles.skillContent}>
-                {Object.values(skillsData).map(index => {
-                  return (
-                  <View
-                    key={index.id}
-                    style={styles.singleSkillView}
-                  >
-                    <View style={styles.skillAmount}>
-                      <TextInput
-                        color={colors.Brown}
-                        fontSize={40}
-                        cursorColor={colors.Brown}
-                        autoCapitalize="none"
-                        keyboardType="phone-pad"
-                        keyboardAppearance="dark"
-                        value={skillsData[index.id].number}
+            <View style={styles.skillContent}>
+              {Object.values(skillsData).map(index => {
+                return (
+                <View
+                  key={index.id}
+                  style={styles.singleSkillView}
+                >
+                  <View style={styles.skillAmount}>
+                    <TextInput
+                      color={colors.Brown}
+                      fontSize={40}
+                      cursorColor={colors.Brown}
+                      autoCapitalize="none"
+                      keyboardType="phone-pad"
+                      keyboardAppearance="dark"
+                      value={skillsData[index.id].number}
+                      onChangeText={(text) => setSkillsData({...skillsData,
+                        [index.id] :{
+                          "name": index.name,
+                          "number": text,
+                          "id": index.id
+                        }
+                      })}
+                      onEndEditing={() => updateSkillDataStorage()}
+                      textAlign={'left'}
+                    />
+                  </View>
+                  <View style={styles.skillNameView}>
+                    <TextInput
+                      color={colors.Brown}
+                      fontSize={30}
+                      cursorColor={colors.Brown}
+                      autoCapitalize="none"
+                      keyboardType="ascii-capable"
+                      keyboardAppearance="dark"
+                      value={skillsData[index.id].name}
                         onChangeText={(text) => setSkillsData({...skillsData,
                           [index.id] :{
-                            "name": index.name,
-                            "number": text,
+                            "name": text,
+                            "number": index.number,
                             "id": index.id
                           }
                         })}
-                        onEndEditing={() => updateSkillDataStorage()}
-                        textAlign={'left'}
-                      />
-                    </View>
-                    <View style={styles.skillNameView}>
+                      onEndEditing={() => updateSkillDataStorage()}
+                      textAlign={'left'}
+                    />
+                  </View>
+                  <TouchableOpacity style={styles.skillDeleteBtnView} onPress={() => deleteItemFromSkillStorage(index.id)}>
+                    <Ionicons style={styles.skillDeleteBtn} name="trash-bin"></Ionicons>
+                  </TouchableOpacity>
+                </View>
+                )
+              })}
+            </View>
+          </View>
+          <View style={styles.skillBonus}>
+            <View style={styles.skillsTitle}>
+              <Text style={styles.textColor}>Attacks</Text>
+              <TouchableOpacity style={styles.addSkillButton} onPress={() => {addAttacksData()}}>
+                <Ionicons style={styles.addButton} name="add-circle"></Ionicons>
+              </TouchableOpacity>
+            </View>
+            <View style={styles.attacksContent}>
+                {Object.values(attacksData).map(index => {
+                  return (
+                    <View key={index.id} style={styles.attackPoint}>
+                      <TouchableOpacity onPress={() => deleteItemFromAttacksStorage(index.id)}>
+                        <Ionicons style={styles.attackPointText} name="remove-circle"></Ionicons>
+                      </TouchableOpacity>
                       <TextInput
+                        style={styles.attackPointTextInput}
                         color={colors.Brown}
-                        fontSize={30}
+                        fontSize={25}
                         cursorColor={colors.Brown}
                         autoCapitalize="none"
                         keyboardType="ascii-capable"
                         keyboardAppearance="dark"
-                        value={skillsData[index.id].name}
-                          onChangeText={(text) => setSkillsData({...skillsData,
-                            [index.id] :{
-                              "name": text,
-                              "number": index.number,
-                              "id": index.id
-                            }
-                          })}
-                        onEndEditing={() => updateSkillDataStorage()}
-                        textAlign={'left'}
+                        value={attacksData[index.id].attack}
+                        width={'90%'}
+                        multiline={true}
+                        onChangeText={(text) => setAttacksData({...attacksData,
+                          [index.id] :{
+                            "attack": text,
+                            "id": index.id
+                          }
+                        })}
+                        onEndEditing={() => updateAttacksDataStorage()}
                       />
                     </View>
-                    <TouchableOpacity style={styles.skillDeleteBtnView} onPress={() => deleteItemFromSkillStorage(index.id)}>
-                      <Ionicons style={styles.skillDeleteBtn} name="trash-bin"></Ionicons>
-                    </TouchableOpacity>
-                  </View>
                   )
                 })}
-              </View>
             </View>
-            <View style={styles.skillBonus}>
-              <View style={styles.skillsTitle}>
-                <Text style={styles.textColor}>Attacks</Text>
-                <TouchableOpacity style={styles.addSkillButton} onPress={() => {addAttacksData()}}>
-                  <Ionicons style={styles.addButton} name="add-circle"></Ionicons>
-                </TouchableOpacity>
-              </View>
-              <View style={styles.attacksContent}>
-                  {Object.values(attacksData).map(index => {
-                    return (
-                      <View key={index.id} style={styles.attackPoint}>
-                        <TouchableOpacity onPress={() => deleteItemFromAttacksStorage(index.id)}>
-                          <Ionicons style={styles.attackPointText} name="remove-circle"></Ionicons>
-                        </TouchableOpacity>
-                        <TextInput
-                          style={styles.attackPointTextInput}
-                          color={colors.Brown}
-                          fontSize={25}
-                          cursorColor={colors.Brown}
-                          autoCapitalize="none"
-                          keyboardType="ascii-capable"
-                          keyboardAppearance="dark"
-                          value={attacksData[index.id].attack}
-                          width={'90%'}
-                          multiline={true}
-                          onChangeText={(text) => setAttacksData({...attacksData,
-                            [index.id] :{
-                              "attack": text,
-                              "id": index.id
-                            }
-                          })}
-                          onEndEditing={() => updateAttacksDataStorage()}
-                        />
-                      </View>
-                    )
-                  })}
-              </View>
+          </View>
+          <View style={styles.skillBonus}>
+          <View style={styles.skillsTitle}>
+              <Text style={styles.textColor}>Specials</Text>
+              <TouchableOpacity style={styles.addSkillButton} onPress={() => {addSpecialsData()}}>
+                <Ionicons style={styles.addButton} name="add-circle"></Ionicons>
+              </TouchableOpacity>
             </View>
-            <View style={styles.skillBonus}>
-            <View style={styles.skillsTitle}>
-                <Text style={styles.textColor}>Specials</Text>
-                <TouchableOpacity style={styles.addSkillButton} onPress={() => {addSpecialsData()}}>
-                  <Ionicons style={styles.addButton} name="add-circle"></Ionicons>
-                </TouchableOpacity>
-              </View>
-              <View style={styles.attacksContent}>
-                  {Object.values(specialsData).map(index => {
-                    return (
-                      <View key={index.id} style={styles.attackPoint}>
-                        <TouchableOpacity onPress={() => deleteItemFromSpecialsStorage(index.id)}>
-                          <Ionicons style={styles.attackPointText} name="remove-circle"></Ionicons>
-                        </TouchableOpacity>
-                        <TextInput
-                          style={styles.attackPointTextInput}
-                          color={colors.Brown}
-                          fontSize={25}
-                          cursorColor={colors.Brown}
-                          autoCapitalize="none"
-                          keyboardType="ascii-capable"
-                          keyboardAppearance="dark"
-                          value={specialsData[index.id].special}
-                          width={'90%'}
-                          multiline={true}
-                          onChangeText={(text) => setSpecialsData({...specialsData,
-                            [index.id] :{
-                              "special": text,
-                              "id": index.id
-                            }
-                          })}
-                          onEndEditing={() => updateSpecialsDataStorage()}
-                        />
-                      </View>
-                    )
-                  })}
-              </View>
+            <View style={styles.attacksContent}>
+                {Object.values(specialsData).map(index => {
+                  return (
+                    <View key={index.id} style={styles.attackPoint}>
+                      <TouchableOpacity onPress={() => deleteItemFromSpecialsStorage(index.id)}>
+                        <Ionicons style={styles.attackPointText} name="remove-circle"></Ionicons>
+                      </TouchableOpacity>
+                      <TextInput
+                        style={styles.attackPointTextInput}
+                        color={colors.Brown}
+                        fontSize={25}
+                        cursorColor={colors.Brown}
+                        autoCapitalize="none"
+                        keyboardType="ascii-capable"
+                        keyboardAppearance="dark"
+                        value={specialsData[index.id].special}
+                        width={'90%'}
+                        multiline={true}
+                        onChangeText={(text) => setSpecialsData({...specialsData,
+                          [index.id] :{
+                            "special": text,
+                            "id": index.id
+                          }
+                        })}
+                        onEndEditing={() => updateSpecialsDataStorage()}
+                      />
+                    </View>
+                  )
+                })}
             </View>
-            <View style={styles.inventory}>
-            <View style={styles.skillsTitle}>
-                <Text style={styles.textColor}>Inventory</Text>
-                <TouchableOpacity style={styles.addSkillButton} onPress={() => {addInventoryData()}}>
-                  <Ionicons style={styles.addButton} name="add-circle"></Ionicons>
-                </TouchableOpacity>
-              </View>
-              <View style={styles.attacksContent}>
-                  {Object.values(inventoryData).map(index => {
-                    return (
-                      <View key={index.id} style={styles.attackPoint}>
-                        <TouchableOpacity onPress={() => deleteItemFromInventoryStorage(index.id)}>
-                          <Ionicons style={styles.attackPointText} name="remove-circle"></Ionicons>
-                        </TouchableOpacity>
-                        <TextInput
-                          style={styles.attackPointTextInput}
-                          color={colors.Brown}
-                          fontSize={25}
-                          cursorColor={colors.Brown}
-                          autoCapitalize="none"
-                          keyboardType="ascii-capable"
-                          keyboardAppearance="dark"
-                          value={inventoryData[index.id].item}
-                          width={'90%'}
-                          multiline={true}
-                          onChangeText={(text) => setInventoryData({...inventoryData,
-                            [index.id] :{
-                              "item": text,
-                              "id": index.id
-                            }
-                          })}
-                          onEndEditing={() => updateInverntoryDataStorage()}
-                        /> 
-                      </View>
-                    )
-                  })}
-              </View>
+          </View>
+          <View style={styles.inventory}>
+          <View style={styles.skillsTitle}>
+              <Text style={styles.textColor}>Inventory</Text>
+              <TouchableOpacity style={styles.addSkillButton} onPress={() => {addInventoryData()}}>
+                <Ionicons style={styles.addButton} name="add-circle"></Ionicons>
+              </TouchableOpacity>
             </View>
-          </ScrollView>
-        </ImageBackground>
+            <View style={styles.attacksContent}>
+                {Object.values(inventoryData).map(index => {
+                  return (
+                    <View key={index.id} style={styles.attackPoint}>
+                      <TouchableOpacity onPress={() => deleteItemFromInventoryStorage(index.id)}>
+                        <Ionicons style={styles.attackPointText} name="remove-circle"></Ionicons>
+                      </TouchableOpacity>
+                      <TextInput
+                        style={styles.attackPointTextInput}
+                        color={colors.Brown}
+                        fontSize={25}
+                        cursorColor={colors.Brown}
+                        autoCapitalize="none"
+                        keyboardType="ascii-capable"
+                        keyboardAppearance="dark"
+                        value={inventoryData[index.id].item}
+                        width={'90%'}
+                        multiline={true}
+                        onChangeText={(text) => setInventoryData({...inventoryData,
+                          [index.id] :{
+                            "item": text,
+                            "id": index.id
+                          }
+                        })}
+                        onEndEditing={() => updateInverntoryDataStorage()}
+                      /> 
+                    </View>
+                  )
+                })}
+            </View>
+          </View>
+          <TouchableOpacity style={styles.characterImageView} onPress={() => {pickImage()}}>
+            <Image style={styles.characterImage} source={{ uri: characterImage }}/>
+            <Text style={styles.imageText}>Press to Choose Image</Text>
+          </TouchableOpacity>
+        </ScrollView>
+        <View style={styles.logoView}>
+          <Image style={styles.logoStyle} source={require('../assets/DandDLogo.png')}/>
+        </View>
       </View>
     );
 }
 
-export default CharacterScreen
+export default CharacterScreen;
 
 const styles = StyleSheet.create({
   container: {
@@ -597,9 +620,6 @@ const styles = StyleSheet.create({
     width: '100%',
     paddingHorizontal: 20,
     minHeight: 35,
-    backgroundColor: colors.Blue,
-    borderBottomRightRadius: 25,
-    borderBottomLeftRadius: 25,
     paddingBottom: 20,
     paddingTop: 20
   },
@@ -657,9 +677,6 @@ const styles = StyleSheet.create({
   attacksContent: {
     width: '100%',
     paddingRight: 20,
-    backgroundColor: colors.Blue,
-    borderBottomRightRadius: 25,
-    borderBottomLeftRadius: 25,
     paddingBottom: 40,
   },
   attackPoint: {
@@ -687,7 +704,6 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     height: 'auto',
     minHeight: 100,
-    marginBottom: 600,
     borderColor: colors.Navy
   },
   button: {
@@ -741,5 +757,50 @@ const styles = StyleSheet.create({
     fontSize: Platform.OS === 'ios' ? 40 : 30,
     alignSelf: 'center',
     width: '40%',
+  },
+  logoView: {
+    width: '90%',
+    height: '15%',
+    backgroundColor: colors.Navy,
+    marginBottom: 30,
+    marginTop: 5,
+    borderRadius: 25,
+    borderWidth: 3,
+    borderColor: colors.Navy,
+    paddingTop: 5,
+    shadowOffset: {
+      width: 0,
+      height: 4,
+      },
+    shadowOpacity: 0.5,
+    shadowRadius: 5,
+    elevation: 5,
+  },
+  logoStyle: {
+    width: '100%',
+    height: '100%',
+  },
+  characterImageView: {
+    height: 500,
+    width: '90%',
+    borderWidth: 1,
+    alignSelf: 'center',
+    marginTop: 20,
+    marginBottom: 10,
+    borderColor: colors.Navy,
+    borderRadius: 25,
+    backgroundColor: colors.Navy,
+    justifyContent: 'center',
+    alignItems: 'center'
+  },
+  imageText: {
+    color: colors.Brown
+  },
+  characterImage: {
+    width: '100%',
+    height: '100%',
+    borderRadius: 25,
+    position: 'absolute',
+    zIndex: 1
   }
 })
