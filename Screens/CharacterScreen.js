@@ -30,8 +30,8 @@ const CharacterScreen = () => {
     setLoading(false)
 
     setTimeout(() => {
-      setLoading(false)
-    }, 5000)
+      setLoading(true)
+    }, 3000)
 
     const getCharacterData = async () => {
       let values;
