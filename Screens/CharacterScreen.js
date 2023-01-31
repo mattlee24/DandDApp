@@ -4,6 +4,8 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import colors from '../colors';
 import { Ionicons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
+import { Colors } from 'react-native/Libraries/NewAppScreen';
+import { useFonts } from 'expo-font';
 
 const CharacterScreen = () => {
 
@@ -17,8 +19,19 @@ const CharacterScreen = () => {
   const [ specialsData, setSpecialsData ] = useState({});
   const [ inventoryData, setInventoryData ] = useState({})
   const [ characterImage, setCharacterImage ] = useState('')
+  const [ loading, setLoading ] = useState(false)
+
+  const [fontsLoaded] = useFonts({
+    'Ribbon': require('../assets/fonts/Kaldevaderibbon.ttf'),
+  });
 
   useEffect(() => { 
+
+    setLoading(true)
+
+    setTimeout(() => {
+      setLoading(true)
+    }, 5000)
 
     const getCharacterData = async () => {
       let values;
@@ -234,6 +247,15 @@ const CharacterScreen = () => {
         console.log('Error:',e)
       }
     } 
+  }
+
+  if ( loading && fontsLoaded ) {
+    return (
+      <View style={styles.container}>
+        <Image style={styles.loadingImage} source={require('../assets/splash.png')}/>
+        <Text style={styles.loadingText}>Loading!</Text>
+      </View>
+    )
   }
 
     return (
@@ -527,6 +549,19 @@ const styles = StyleSheet.create({
     height: '100%',
     alignItems: 'center',
     backgroundColor: colors.Blue
+  },
+  loadingImage: {
+    width: '100%',
+    height: '100%'
+  },
+  loadingText: {
+    position: 'absolute',
+    bottom: 0,
+    alignSelf: 'center',
+    color: 'white',
+    fontSize: 70,
+    marginBottom: 50,
+    fontFamily: 'Ribbon'
   },
   image: {
     width: '100%'
