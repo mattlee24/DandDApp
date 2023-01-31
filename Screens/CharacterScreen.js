@@ -241,7 +241,7 @@ const CharacterScreen = () => {
         <View style={styles.name}>
           <TextInput
             color={colors.Brown}
-            fontSize={50}
+            fontSize={30}
             cursorColor={colors.Brown}
             autoCapitalize="none"
             keyboardType="default"
@@ -642,7 +642,7 @@ const styles = StyleSheet.create({
     borderRadius: 15,
   },
   addButton: {
-    fontSize: 40,
+    fontSize: 30,
     color: colors.Brown,
   },
   singleSkillView: {
@@ -728,8 +728,6 @@ const styles = StyleSheet.create({
     fontSize: 25,
     marginRight: 5,
   },  
-  inventoryTextInput: {
-  },
   button: {
     position: 'absolute',
     bottom: 0,
@@ -750,7 +748,7 @@ const styles = StyleSheet.create({
   },
   textColor: {
     color: colors.Brown,
-    fontSize: 40,
+    fontSize: 30,
   },
   healthText: {
     color: colors.Brown,
@@ -778,7 +776,7 @@ const styles = StyleSheet.create({
   },
   traitsContenttextColor: {
     color: colors.Navy,
-    fontSize: Platform.OS === 'ios' ? 40 : 30,
+    fontSize: Platform.OS === 'ios' ? 30 : 30,
     alignSelf: 'center',
     width: '40%',
   },
@@ -799,13 +797,15 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.5,
     shadowRadius: 5,
     elevation: 5,
+    justifyContent: 'center',
+    alignItems: 'center'
   },
   logoStyle: {
-    width: '100%',
-    height: '100%',
+    width: '60%',
+    height: '60%',
   },
   characterImageView: {
-    height: 500,
+    height: 400,
     width: '90%',
     borderWidth: 1,
     alignSelf: 'center',
