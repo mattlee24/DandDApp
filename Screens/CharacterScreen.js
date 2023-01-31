@@ -27,10 +27,10 @@ const CharacterScreen = () => {
 
   useEffect(() => { 
 
-    setLoading(false)
+    setLoading(true)
 
     setTimeout(() => {
-      setLoading(true)
+      setLoading(false)
     }, 3000)
 
     const getCharacterData = async () => {
