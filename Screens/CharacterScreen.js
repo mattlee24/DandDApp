@@ -819,10 +819,10 @@ const styles = StyleSheet.create({
     width: '100%',
     height: '15%',
     backgroundColor: colors.Navy,
-    borderRadius: 25,
+    borderTopRightRadius: 25,
+    borderTopLeftRadius: 25,
     borderWidth: 3,
     borderColor: colors.Navy,
-    paddingTop: 5,
     shadowOffset: {
       width: 0,
       height: 4,
@@ -831,11 +831,14 @@ const styles = StyleSheet.create({
     shadowRadius: 5,
     elevation: 5,
     justifyContent: 'center',
-    alignItems: 'center'
+    alignItems: 'center',
+    paddingTop: 10
   },
   logoStyle: {
-    width: '50%',
-    height: '60%',
+    width: '80%',
+    height: '100%',
+    overflow: 'visible',
+    tintColor: colors.Brown
   },
   characterImageView: {
     height: 400,
