@@ -835,7 +835,7 @@ const styles = StyleSheet.create({
   },
   logoStyle: {
     width: '50%',
-    height: '50%',
+    height: '60%',
   },
   characterImageView: {
     height: 400,
