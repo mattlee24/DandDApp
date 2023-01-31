@@ -27,10 +27,10 @@ const CharacterScreen = () => {
 
   useEffect(() => { 
 
-    setLoading(true)
+    setLoading(false)
 
     setTimeout(() => {
-      setLoading(true)
+      setLoading(false)
     }, 5000)
 
     const getCharacterData = async () => {
@@ -816,11 +816,9 @@ const styles = StyleSheet.create({
     width: '40%',
   },
   logoView: {
-    width: '90%',
+    width: '100%',
     height: '15%',
     backgroundColor: colors.Navy,
-    marginBottom: 30,
-    marginTop: 5,
     borderRadius: 25,
     borderWidth: 3,
     borderColor: colors.Navy,
@@ -836,8 +834,8 @@ const styles = StyleSheet.create({
     alignItems: 'center'
   },
   logoStyle: {
-    width: '60%',
-    height: '60%',
+    width: '50%',
+    height: '50%',
   },
   characterImageView: {
     height: 400,
@@ -845,7 +843,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     alignSelf: 'center',
     marginTop: 20,
-    marginBottom: 10,
+    marginBottom: 20,
     borderColor: colors.Navy,
     borderRadius: 25,
     backgroundColor: colors.Navy,
